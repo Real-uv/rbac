@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cloud.topdaddy.admin.mapper.SysOperationLogMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, trace_id, user_id, username, operation, method, params, result, ip, location,
+        user_agent, status, error_msg, cost_time, create_time
+    </sql>
+
+    <!-- 根据用户ID查询操作日志 -->
+    <select id="selectByUserId" parameterType="long" resultType="cloud.topdaddy.admin.entity.SysOperationLog">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_operation_log
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据操作名称查询操作日志 -->
+    <select id="selectByOperation" parameterType="string" resultType="cloud.topdaddy.admin.entity.SysOperationLog">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_operation_log
+        WHERE operation LIKE CONCAT('%', #{operation}, '%')
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据时间范围查询操作日志 -->
+    <select id="selectByTimeRange" resultType="cloud.topdaddy.admin.entity.SysOperationLog">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_operation_log
+        WHERE create_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据状态查询操作日志 -->
+    <select id="selectByStatus" parameterType="int" resultType="cloud.topdaddy.admin.entity.SysOperationLog">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_operation_log
+        WHERE status = #{status}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 清理指定天数之前的日志 -->
+    <delete id="deleteByDaysAgo" parameterType="int">
+        DELETE FROM sys_operation_log
+        WHERE create_time &lt; DATE_SUB(NOW(), INTERVAL #{days} DAY)
+    </delete>
+
+    <!-- 统计操作日志数量 -->
+    <select id="countLogs" resultType="long">
+        SELECT COUNT(*) FROM sys_operation_log
+    </select>
+
+    <!-- 统计今日操作日志数量 -->
+    <select id="countTodayLogs" resultType="long">
+        SELECT COUNT(*) FROM sys_operation_log
+        WHERE DATE(create_time) = CURDATE()
+    </select>
+
+    <!-- 统计失败操作日志数量 -->
+    <select id="countFailedLogs" resultType="long">
+        SELECT COUNT(*) FROM sys_operation_log
+        WHERE status = 0
+    </select>
+</mapper>

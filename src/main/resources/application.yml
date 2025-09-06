@@ -1,0 +1,96 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: daily-admin
+  
+  # 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/rbac_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # Redis配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+#      password:
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      write-dates-as-timestamps: false
+  main:
+    allow-circular-references: true
+
+# MyBatis Plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath*:/mapper/**/*.xml
+  # 事务配置
+  executor-type: simple
+  configuration-properties:
+    defaultExecutorType: SIMPLE
+    defaultStatementTimeout: 30
+    mapUnderscoreToCamelCase: true
+
+# JWT配置
+jwt:
+  secret: rbac-admin-system-jwt-secret-key-2024-secure-random-string-for-production-use-only
+  expiration: 86400000  # 24小时
+  refresh-expiration: 604800000  # 7天
+  token-header: Authorization
+  token-prefix: "Bearer "
+
+# 日志配置
+logging:
+  level:
+    cloud.topdaddy.admin: info
+    cloud.topdaddy.admin.security.JwtTokenUtil: warn
+    org.springframework.security: warn
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"
+  file:
+    name: logs/rbac-admin.log
+    max-size: 10MB
+    max-history: 30
+
+# 系统配置
+system:
+  # 默认密码
+  default-password: 123456
+  # 密码加密盐值
+  password-salt: rbac-admin-salt
+  # 超级管理员用户名
+  super-admin: admin

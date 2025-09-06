@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.topdaddy.admin.mapper.SysPermissionMapper">
+
+    <!-- 根据权限编码查询权限信息 -->
+    <select id="selectByCode" resultType="cloud.topdaddy.admin.entity.SysPermission">
+        SELECT * FROM sys_permission 
+        WHERE code = #{code} AND deleted = 0
+    </select>
+
+    <!-- 根据用户ID查询权限列表 -->
+    <select id="selectPermissionsByUserId" resultType="cloud.topdaddy.admin.entity.SysPermission">
+        SELECT DISTINCT p.*
+        FROM sys_permission p
+        INNER JOIN sys_role_permission rp ON p.id = rp.permission_id
+        INNER JOIN sys_user_role ur ON rp.role_id = ur.role_id
+        WHERE ur.user_id = #{userId} 
+          AND p.status = 1 
+          AND p.deleted = 0
+        ORDER BY p.sort ASC
+    </select>
+
+    <!-- 根据角色ID查询权限列表 -->
+    <select id="selectPermissionsByRoleId" resultType="cloud.topdaddy.admin.entity.SysPermission">
+        SELECT p.*
+        FROM sys_permission p
+        INNER JOIN sys_role_permission rp ON p.id = rp.permission_id
+        WHERE rp.role_id = #{roleId} 
+          AND p.status = 1 
+          AND p.deleted = 0
+        ORDER BY p.sort ASC
+    </select>
+
+    <!-- 根据父权限ID查询子权限列表 -->
+    <select id="selectByParentId" resultType="cloud.topdaddy.admin.entity.SysPermission">
+        SELECT * FROM sys_permission 
+        WHERE parent_id = #{parentId} 
+          AND status = 1 
+          AND deleted = 0
+        ORDER BY sort ASC
+    </select>
+
+    <!-- 查询所有权限树形结构 -->
+    <select id="selectPermissionTree" resultType="cloud.topdaddy.admin.entity.SysPermission">
+        SELECT * FROM sys_permission 
+        WHERE status = 1 AND deleted = 0
+        ORDER BY parent_id ASC, sort ASC
+    </select>
+
+    <!-- 检查权限是否被角色使用 -->
+    <select id="countRolesByPermissionId" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_role_permission rp
+        INNER JOIN sys_role r ON rp.role_id = r.id
+        WHERE rp.permission_id = #{permissionId} 
+          AND r.deleted = 0
+    </select>
+
+    <!-- 检查是否存在子权限 -->
+    <select id="countChildrenByParentId" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_permission 
+        WHERE parent_id = #{parentId} 
+          AND deleted = 0
+    </select>
+
+</mapper>
